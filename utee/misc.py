@@ -253,9 +253,12 @@ def optimize_sequence_model(memory, rnn_ins, target_rnn, GAMMA, optimizer):
             #current_hidden = (batch[5][0][:, idxes, :], batch[5][0][:, idxes, :])
 
             target_rnn.set_hidden(current_hidden) #if we use previous results
-            next_state_values = target_rnn(next_state, next_id).max(1)[0].detach()
+            #next_state_values = target_rnn(next_state, next_id).max(1)[0].detach()
+            max_id = rnn_ins(next_state, next_id).max(1)[1]
+            rnn_ins.set_hidden(current_hidden)
+            next_state_values = torch.gather(target_rnn(next_state, next_id), dim=1, index=max_id.unsqueeze(1)).detach()   #.max(1)[0].detach()
             # Compute the expected Q values
-            expected_state_action_values = ((next_state_values * GAMMA) + reward).detach()
+            expected_state_action_values = ((next_state_values.squeeze(1) * GAMMA) + reward).detach()
         else: #for terminal state
             rnn_ins.set_hidden(current_hidden)
             state_action_values = rnn_ins(current_state, current_id).gather(1, current_action.unsqueeze(-1))
@@ -284,7 +287,7 @@ def optimize_sequence_model(memory, rnn_ins, target_rnn, GAMMA, optimizer):
     #loss_fn = torch.nn.MSELoss(reduce=False)
     #loss = loss_fn(pred_values_scores, target_values_scores)
     #rndidx = random.randint(0,5)
-    seed_array = torch.ones(pred_values_scores.size()).cuda()
+    seed_array = torch.ones(pred_values_scores.size()).cuda()*1/2
     rndidx = torch.bernoulli(seed_array)
     #loss = F.smooth_l1_loss(pred_values_scores, target_values_scores, reduce=False) #, reduce=False
     loss = F.mse_loss(pred_values_scores, target_values_scores, reduce=False)
@@ -438,10 +441,10 @@ def train_mode(train_loader, model, rnn_ins, target_rnn, rnn_optimizer, GAMMA, m
 
         accu_rewards += batch_rewards
         #optimize_model(memory, bs, rnn_ins, target_rnn, GAMMA, rnn_optimizer)
-        for w in range(5):
+        for w in range(10):
             optimize_sequence_model(memory, rnn_ins, target_rnn, GAMMA, rnn_optimizer)
             update_cc += 1
-        if update_cc % 200 == 0:
+        if update_cc % 800 == 0:
             target_rnn.load_state_dict(rnn_ins.state_dict())
 
         # compute output

@@ -128,7 +128,7 @@ normalized_params(model_raw, masks)
 prune_rate(model_raw)
 '''
 
-capacity=10000
+capacity=100000
 memory = [ReplayMemory(capacity),ReplayMemory(capacity),ReplayMemory(capacity),ReplayMemory(capacity),ReplayMemory(capacity),ReplayMemory(capacity)]
 # eval model
 val_ds = ds_fetcher(args.batch_size, data_root=args.data_root, train=False, input_size=args.input_size)
@@ -144,7 +144,7 @@ for epoch in range(args.start_epoch, args.epochs):
 
     res_str = "type={}, quant_method={}, param_bits={}, bn_bits={}, fwd_bits={}, overflow_rate={}, acc1={:.4f}, acc5={:.4f}".format(
         args.type, args.quant_method, args.param_bits, args.bn_bits, args.fwd_bits, args.overflow_rate, acc1, acc5)
-    print(res_str)
+    print(res_str)asdf
 '''
 train_ds = ds_fetcher(args.batch_size, data_root=args.data_root, train=True, input_size=args.input_size)[0]
 # define loss function (criterion) and optimizer

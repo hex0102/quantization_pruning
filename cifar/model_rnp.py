@@ -16,6 +16,7 @@ model_urls = {
     'cifar10': 'http://ml.cs.tsinghua.edu.cn/~chenxi/pytorch-models/cifar10-d875770b.pth',
     'cifar100': 'http://ml.cs.tsinghua.edu.cn/~chenxi/pytorch-models/cifar100-3a55a987.pth',
 }
+
 enable_rnn = 1
 quant_output = 1
 
